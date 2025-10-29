@@ -639,6 +639,10 @@ function handleCurrentWeek() {
 function init() {
   loadPreferences();
 
+  if (elements.weekPicker) {
+    elements.weekPicker.setAttribute("lang", "fr-FR");
+  }
+
   elements.classe.addEventListener("change", handleClasseChange);
   elements.groupe.addEventListener("input", handleGroupeInput);
   elements.weekPicker.addEventListener("input", handleWeekPickerChange);
