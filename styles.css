@@ -94,10 +94,12 @@ body {
   font-size: var(--font-size-body-xs);
   margin-bottom: var(--spacing-xs);
   transition: color 0.2s ease;
+  width: fit-content;
 }
 
 .hero__back-link:hover {
   text-decoration: underline;
+  color: var(--color-grey-contrast);
 }
 
 .hero__back-link svg {
@@ -264,13 +266,15 @@ select.form-control {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  text-align: center;
   gap: 8px;
   min-width: 0;
 }
 
 .week-picker {
   width: 100%;
+  max-width: 100%;
   padding: 8px 12px;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -282,6 +286,9 @@ select.form-control {
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease;
+  min-width: 0;
+  display: block;
+  -webkit-appearance: none;
 }
 
 .week-picker:hover {
@@ -304,6 +311,7 @@ select.form-control {
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  align-self: center;
 }
 
 .week-current-btn:hover {
@@ -382,11 +390,6 @@ select.form-control {
   flex-direction: column;
   gap: var(--spacing-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.course-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .course-card__header {
@@ -517,7 +520,7 @@ select.form-control {
     --color-grey-muted: #808080;
     --color-grey-border: #2a2a2a;
     --color-card-bg: #1a1a1a;
-    --color-accent: #ff5757;
+    --color-accent: #cf4949;
   }
 
   body {
