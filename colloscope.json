@@ -1,0 +1,176 @@
+{
+  "15sept2025": {
+    "1A": {
+      "maths": [
+        {
+          "date": "Lundi 18h",
+          "salle": "356",
+          "groupe": "1"
+        },
+        {
+          "date": "Mercredi 18h",
+          "salle": "354",
+          "groupe": "2"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "365",
+          "groupe": "3"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "318",
+          "groupe": "4"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "365",
+          "groupe": "5"
+        },
+        {
+          "date": "Jeudi 15h30",
+          "salle": "363",
+          "groupe": "6"
+        },
+        {
+          "date": "Jeudi 15h30",
+          "salle": "365",
+          "groupe": "7"
+        },
+        {
+          "date": "Jeudi 15h30",
+          "salle": "354",
+          "groupe": "8"
+        }
+      ],
+      "physique": [
+        {
+          "date": "Lundi 18h",
+          "salle": "319",
+          "groupe": "3"
+        },
+        {
+          "date": "Lundi 18h",
+          "salle": "354",
+          "groupe": "4"
+        },
+        {
+          "date": "Mercredi 18h",
+          "salle": "356",
+          "groupe": "6"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "354",
+          "groupe": "7"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "356",
+          "groupe": "1"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "363",
+          "groupe": "2"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "356",
+          "groupe": "8"
+        },
+        {
+          "date": "Jeudi 15h30",
+          "salle": "314",
+          "groupe": "5"
+        }
+      ]
+    },
+    "2A": {
+      "maths": [
+        {
+          "date": "Lundi 18h",
+          "salle": "314",
+          "groupe": "1"
+        },
+        {
+          "date": "Mardi 18h",
+          "salle": "354",
+          "groupe": "2"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "347",
+          "groupe": "3"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "318",
+          "groupe": "4"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "313",
+          "groupe": "5"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "347",
+          "groupe": "6"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "313",
+          "groupe": "7"
+        },
+        {
+          "date": "Jeudi 15h30",
+          "salle": "318",
+          "groupe": "8"
+        }
+      ],
+      "physique": [
+        {
+          "date": "Lundi 18h",
+          "salle": "347",
+          "groupe": "3"
+        },
+        {
+          "date": "Mercredi 18h",
+          "salle": "347",
+          "groupe": "4"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "363",
+          "groupe": "6"
+        },
+        {
+          "date": "Jeudi 13h30",
+          "salle": "314",
+          "groupe": "7"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "354",
+          "groupe": "1"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "319",
+          "groupe": "2"
+        },
+        {
+          "date": "Jeudi 14h30",
+          "salle": "314",
+          "groupe": "8"
+        },
+        {
+          "date": "Jeudi 15h30",
+          "salle": "319",
+          "groupe": "5"
+        }
+      ]
+    }
+  }
+}
