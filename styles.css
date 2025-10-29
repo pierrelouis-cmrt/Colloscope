@@ -366,7 +366,7 @@ select.form-control {
   height: 6px;
   background: var(--color-accent);
   border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
+  display: none;
 }
 
 /* Course cards */
@@ -466,29 +466,8 @@ select.form-control {
 }
 
 /* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
 .fade-in {
-  animation: fadeIn 0.3s ease forwards;
+  animation: none;
 }
 
 /* Mobile optimizations */

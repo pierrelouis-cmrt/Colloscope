@@ -469,14 +469,23 @@ function render() {
   const classe = elements.classe.value;
   const groupNum = parseInt(elements.groupe.value, 10);
 
+  if (!DATA || !DATA[BASE_WEEK_KEY]) {
+    elements.results.style.display = "none";
+    if (elements.weekNavigation) {
+      elements.weekNavigation.style.display = "none";
+    }
+    elements.loadingDot.style.display = "none";
+    return;
+  }
+
   if (!classe || !groupNum || groupNum < 1) {
     elements.results.style.display = "none";
     if (elements.weekNavigation) {
       elements.weekNavigation.style.display = "none";
     }
+    elements.loadingDot.style.display = "none";
     return;
   }
-  if (!DATA || !DATA[BASE_WEEK_KEY]) return;
 
   savePreferences();
 
@@ -485,7 +494,6 @@ function render() {
     elements.weekNavigation.style.display = "flex";
   }
   elements.results.style.display = "block";
-  elements.loadingDot.style.display = "inline-block";
 
   const now = new Date();
   const useManual = manualSelectionActive && manualWeekMonday;
@@ -547,17 +555,13 @@ function render() {
       const diff = a.slot.when.getTime() - b.slot.when.getTime();
       return diff !== 0 ? diff : a.order - b.order;
     })
-    .forEach(({ courseEl }, index) => {
-      courseEl.style.animationDelay = `${0.1 + index * 0.1}s`;
+    .forEach(({ courseEl }) => {
       elements.courses.appendChild(courseEl);
     });
 
   // Update current week button visibility
   updateCurrentWeekButton();
-
-  setTimeout(() => {
-    elements.loadingDot.style.display = "none";
-  }, 300);
+  elements.loadingDot.style.display = "none";
 }
 
 function handleClasseChange() {
