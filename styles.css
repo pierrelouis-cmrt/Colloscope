@@ -244,6 +244,10 @@ select.form-control {
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .week-nav-btn:hover:not(:disabled) {
