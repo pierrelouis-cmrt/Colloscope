@@ -10,7 +10,7 @@ const VACATION_CONFIG = [
   },
   {
     label: "Vacances de Noël",
-    start: "2025-12-15", // 1er Lundi des vacances
+    start: "2025-12-15", // Lundi de la semaine avant les vancances
     weeks: 3,
     skipWeeks: [true, true, true],
   },
