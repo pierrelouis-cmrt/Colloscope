@@ -10,9 +10,9 @@ const VACATION_CONFIG = [
   },
   {
     label: "Vacances de Noël",
-    start: "2025-12-22", // 1er Lundi des vacances
-    weeks: 2,
-    skipWeeks: [true, true],
+    start: "2025-12-15", // 1er Lundi des vacances
+    weeks: 3,
+    skipWeeks: [true, true, true],
   },
   {
     label: "Vacances d'hiver",
