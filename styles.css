@@ -474,6 +474,15 @@ select.form-control {
     padding: 60px 20px 40px;
   }
 
+  .form-row {
+    grid-template-columns: minmax(0, 1.3fr) minmax(80px, 0.9fr);
+    gap: var(--spacing-xs);
+  }
+
+  .form-control {
+    padding: 12px 14px;
+  }
+
   .week-navigation {
     padding: 10px 12px;
   }
