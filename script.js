@@ -16,9 +16,9 @@ const VACATION_CONFIG = [
   },
   {
     label: "Vacances d'hiver",
-    start: "2026-02-09", // 1er Lundi des vacances (Zone A)
-    weeks: 2,
-    skipWeeks: [false, true], // Réglage conservé de votre code
+    start: "2026-02-16", // Lundi de la semaine de vacances (Zone A)
+    weeks: 1,
+    skipWeeks: [true],
   },
   {
     label: "Vacances de printemps",
