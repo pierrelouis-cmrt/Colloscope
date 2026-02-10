@@ -140,14 +140,6 @@
                 class="week-picker"
                 aria-label="Sélectionner une semaine"
               />
-              <button
-                type="button"
-                class="week-current-btn"
-                id="currentWeekBtn"
-                style="display: none"
-              >
-                Semaine actuelle
-              </button>
             </div>
 
             <button
@@ -169,6 +161,12 @@
               >
                 <path d="m9 18 6-6-6-6" />
               </svg>
+            </button>
+          </div>
+
+          <div class="week-indicator-row" id="weekIndicatorRow" style="display: none">
+            <button type="button" class="week-current-btn" id="currentWeekBtn">
+              Semaine actuelle
             </button>
           </div>
         </section>

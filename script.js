@@ -77,6 +77,7 @@ const elements = {
   weekPicker: document.getElementById("weekPicker"),
   // New elements for updated UI
   weekNavigation: document.getElementById("weekNavigation"),
+  weekIndicatorRow: document.getElementById("weekIndicatorRow"),
   prevWeek: document.getElementById("prevWeek"),
   nextWeek: document.getElementById("nextWeek"),
   currentWeekBtn: document.getElementById("currentWeekBtn"),
@@ -86,6 +87,10 @@ let DATA = null;
 let manualSelectionActive = false;
 let manualWeekMonday = null;
 let REFERENCE_MONDAY = null; // La semaine de référence du JSON
+let lastRenderSignature = null;
+let pendingMotionDirection = "neutral";
+let hasRenderedResults = false;
+let motionCleanupTimeout = null;
 
 // Helper function to parse French day/time strings like "Lundi 18h" or "Jeudi 13h30"
 function parseColleDate(dateStr, targetMonday) {
@@ -311,6 +316,103 @@ function getWeekKey(date) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+function normalizeMotionDirection(direction) {
+  if (direction === "forward" || direction === "backward") {
+    return direction;
+  }
+  return "neutral";
+}
+
+function setPendingMotionDirection(direction) {
+  pendingMotionDirection = normalizeMotionDirection(direction);
+}
+
+function getSlotSignature(slot) {
+  if (!slot) return "none";
+  return `${slot.when.getTime()}-${slot.salle}`;
+}
+
+function clearRevealClasses() {
+  elements.results.classList.remove("is-revealing");
+  elements.mathCourse.classList.remove("is-revealing");
+  elements.physCourse.classList.remove("is-revealing");
+}
+
+function resetRenderState() {
+  hasRenderedResults = false;
+  lastRenderSignature = null;
+  setPendingMotionDirection("neutral");
+  if (motionCleanupTimeout) {
+    clearTimeout(motionCleanupTimeout);
+    motionCleanupTimeout = null;
+  }
+  elements.results.dataset.motionDirection = "neutral";
+  clearRevealClasses();
+}
+
+function triggerRevealClass(element, className) {
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
+}
+
+function buildRenderSignature({
+  classe,
+  groupNum,
+  targetMonday,
+  holidayInfo,
+  mathSlot,
+  physSlot,
+  sortedSubjects,
+}) {
+  const weekSignature = getWeekKey(targetMonday);
+  const holidaySignature = holidayInfo ? holidayInfo.label : "cours";
+  const orderSignature = sortedSubjects
+    .map(({ courseEl }) => courseEl.id)
+    .join(",");
+
+  return [
+    classe,
+    String(groupNum),
+    weekSignature,
+    holidaySignature,
+    getSlotSignature(mathSlot),
+    getSlotSignature(physSlot),
+    orderSignature,
+  ].join("|");
+}
+
+function applyResultsMotion(sortedSubjects, shouldAnimate) {
+  const direction = normalizeMotionDirection(pendingMotionDirection);
+  elements.results.dataset.motionDirection = direction;
+
+  sortedSubjects.forEach(({ courseEl }, index) => {
+    courseEl.style.setProperty("--reveal-index", String(index));
+  });
+
+  if (!shouldAnimate) {
+    clearRevealClasses();
+    setPendingMotionDirection("neutral");
+    return;
+  }
+
+  if (motionCleanupTimeout) {
+    clearTimeout(motionCleanupTimeout);
+  }
+
+  triggerRevealClass(elements.results, "is-revealing");
+  sortedSubjects.forEach(({ courseEl }) => {
+    triggerRevealClass(courseEl, "is-revealing");
+  });
+
+  motionCleanupTimeout = window.setTimeout(() => {
+    clearRevealClasses();
+    motionCleanupTimeout = null;
+  }, 420);
+
+  setPendingMotionDirection("neutral");
+}
+
 function holidayInfoFor(monday) {
   for (const vacation of VACATION_CONFIG) {
     const vacationStart = parseDate(vacation.start);
@@ -435,7 +537,7 @@ function loadPreferences() {
 }
 
 // Updated formatSlotInfo to match new styling
-function formatSlotInfo(slot) {
+function formatSlotInfo(slot, shouldAnimateContent = false) {
   if (!slot) {
     return `<div class="course-empty">Pas de colle cette semaine</div>`;
   }
@@ -447,7 +549,7 @@ function formatSlotInfo(slot) {
   const min = slot.when.getMinutes().toString().padStart(2, "0");
 
   return `
-    <div class="course-slot">
+    <div class="course-slot${shouldAnimateContent ? " is-updating" : ""}">
       <div class="slot-datetime">
         ${dayName} ${date} ${month} à ${hour}h${min}
       </div>
@@ -469,7 +571,13 @@ function updateCurrentWeekButton() {
       : wantedMonday;
 
   const isCurrentWeek = isSameDay(wantedMonday, displayedMonday);
-  elements.currentWeekBtn.style.display = isCurrentWeek ? "none" : "block";
+  elements.currentWeekBtn.textContent = isCurrentWeek
+    ? "Semaine actuelle"
+    : "Revenir à la semaine actuelle";
+  elements.currentWeekBtn.disabled = isCurrentWeek;
+  elements.currentWeekBtn.setAttribute("aria-disabled", String(isCurrentWeek));
+  elements.currentWeekBtn.classList.toggle("is-current", isCurrentWeek);
+  elements.currentWeekBtn.classList.toggle("is-action", !isCurrentWeek);
 }
 
 function render() {
@@ -481,7 +589,11 @@ function render() {
     if (elements.weekNavigation) {
       elements.weekNavigation.style.display = "none";
     }
+    if (elements.weekIndicatorRow) {
+      elements.weekIndicatorRow.style.display = "none";
+    }
     elements.loadingDot.style.display = "none";
+    resetRenderState();
     return;
   }
 
@@ -490,7 +602,11 @@ function render() {
     if (elements.weekNavigation) {
       elements.weekNavigation.style.display = "none";
     }
+    if (elements.weekIndicatorRow) {
+      elements.weekIndicatorRow.style.display = "none";
+    }
     elements.loadingDot.style.display = "none";
+    resetRenderState();
     return;
   }
 
@@ -499,6 +615,9 @@ function render() {
   // Show navigation and results
   if (elements.weekNavigation) {
     elements.weekNavigation.style.display = "flex";
+  }
+  if (elements.weekIndicatorRow) {
+    elements.weekIndicatorRow.style.display = "flex";
   }
   elements.results.style.display = "block";
 
@@ -549,11 +668,7 @@ function render() {
     },
   ];
 
-  subjects.forEach(({ slot, contentEl }) => {
-    contentEl.innerHTML = formatSlotInfo(slot);
-  });
-
-  subjects
+  const sortedSubjects = subjects
     .slice()
     .sort((a, b) => {
       if (!a.slot && !b.slot) return a.order - b.order;
@@ -561,10 +676,32 @@ function render() {
       if (!b.slot) return -1;
       const diff = a.slot.when.getTime() - b.slot.when.getTime();
       return diff !== 0 ? diff : a.order - b.order;
-    })
-    .forEach(({ courseEl }) => {
-      elements.courses.appendChild(courseEl);
     });
+
+  const renderSignature = buildRenderSignature({
+    classe,
+    groupNum,
+    targetMonday,
+    holidayInfo,
+    mathSlot,
+    physSlot,
+    sortedSubjects,
+  });
+  const isFirstResultsRender = !hasRenderedResults;
+  const signatureChanged = renderSignature !== lastRenderSignature;
+  const shouldAnimate = isFirstResultsRender || signatureChanged;
+
+  subjects.forEach(({ slot, contentEl }) => {
+    contentEl.innerHTML = formatSlotInfo(slot, shouldAnimate);
+  });
+
+  sortedSubjects.forEach(({ courseEl }) => {
+    elements.courses.appendChild(courseEl);
+  });
+
+  applyResultsMotion(sortedSubjects, shouldAnimate);
+  lastRenderSignature = renderSignature;
+  hasRenderedResults = true;
 
   // Update current week button visibility
   updateCurrentWeekButton();
@@ -574,10 +711,12 @@ function render() {
 function handleClasseChange() {
   const classe = elements.classe.value;
   populateGroups(classe);
+  setPendingMotionDirection("neutral");
   render();
 }
 
 function handleGroupeInput() {
+  setPendingMotionDirection("neutral");
   const value = elements.groupe.value;
   if (!value) {
     render();
@@ -600,6 +739,7 @@ function handleGroupeInput() {
 }
 
 function handleWeekPickerChange() {
+  setPendingMotionDirection("neutral");
   const value = elements.weekPicker.value;
   if (value) {
     manualWeekMonday = getMonday(new Date(value));
@@ -614,6 +754,7 @@ function handleWeekPickerChange() {
 
 // NEW FUNCTIONS FOR UPDATED UI
 function handlePrevWeek() {
+  setPendingMotionDirection("backward");
   const currentDisplay =
     manualSelectionActive && manualWeekMonday
       ? manualWeekMonday
@@ -627,6 +768,7 @@ function handlePrevWeek() {
 }
 
 function handleNextWeek() {
+  setPendingMotionDirection("forward");
   const currentDisplay =
     manualSelectionActive && manualWeekMonday
       ? manualWeekMonday
@@ -640,6 +782,7 @@ function handleNextWeek() {
 }
 
 function handleCurrentWeek() {
+  setPendingMotionDirection("neutral");
   manualSelectionActive = false;
   manualWeekMonday = null;
   const currentMonday = getTargetMonday(new Date());
@@ -652,6 +795,9 @@ function init() {
 
   if (elements.weekPicker) {
     elements.weekPicker.setAttribute("lang", "fr-FR");
+  }
+  if (elements.results) {
+    elements.results.dataset.motionDirection = "neutral";
   }
 
   elements.classe.addEventListener("change", handleClasseChange);
@@ -687,6 +833,7 @@ function setupVisibilityRefresh() {
       clearTimeout(refreshTimeout);
     }
     refreshTimeout = setTimeout(() => {
+      setPendingMotionDirection("neutral");
       render();
     }, 500);
   }

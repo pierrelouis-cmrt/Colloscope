@@ -31,6 +31,13 @@
   --spacing-md: 19.4px;
   --spacing-lg: 20px;
   --spacing-xl: 40px;
+
+  --motion-duration-fast: 180ms;
+  --motion-duration-base: 280ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-y: 8px;
+  --motion-x: 8px;
+  --motion-stagger: 45ms;
 }
 
 ::selection {
@@ -197,7 +204,9 @@ body {
   font-size: var(--font-size-body-sm);
   line-height: 1.4;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   appearance: none;
 }
 
@@ -222,7 +231,6 @@ select.form-control {
   padding: 12px 16px;
   background-color: var(--color-card-bg);
   border-radius: 16px;
-  animation: fadeIn 0.3s ease;
 }
 
 .week-nav-btn {
@@ -298,29 +306,84 @@ select.form-control {
 }
 
 .week-current-btn {
-  padding: 6px 12px;
-  border: 1px solid var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 14px;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: transparent;
-  color: var(--color-accent);
+  background: var(--color-card-bg);
+  color: var(--color-grey-contrast);
   font-family: var(--font-family-base);
   font-size: var(--font-size-link);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
   white-space: nowrap;
-  align-self: center;
 }
 
-.week-current-btn:hover {
+.week-indicator-row {
+  display: flex;
+  justify-content: center;
+  margin-top: -15px;
+}
+
+.week-current-btn.is-action {
+  background: rgba(210, 44, 44, 0.06);
+  border-color: rgba(210, 44, 44, 0.32);
+  color: var(--color-accent);
+}
+
+.week-current-btn.is-action:hover:not(:disabled) {
   background: var(--color-accent);
+  border-color: var(--color-accent);
   color: var(--color-white);
+  transform: translateY(-1px);
+}
+
+.week-current-btn.is-action:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(210, 44, 44, 0.12);
+}
+
+.week-current-btn.is-current {
+  background: rgba(210, 44, 44, 0.1);
+  border-color: rgba(210, 44, 44, 0.25);
+  color: var(--color-accent);
+  cursor: default;
+}
+
+.week-current-btn.is-current::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.9;
 }
 
 /* Results section */
 .results {
   width: 100%;
-  animation: fadeIn 0.3s ease;
+  --directional-x: 0px;
+}
+
+.results[data-motion-direction="forward"] {
+  --directional-x: var(--motion-x);
+}
+
+.results[data-motion-direction="backward"] {
+  --directional-x: calc(var(--motion-x) * -1);
+}
+
+.results.is-revealing {
+  animation: resultsReveal var(--motion-duration-base) var(--motion-ease);
 }
 
 .week-header {
@@ -387,7 +450,16 @@ select.form-control {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  --reveal-index: 0;
+  will-change: transform, opacity;
+}
+
+.course-card.is-revealing {
+  animation: cardReveal var(--motion-duration-base) var(--motion-ease) both;
+  animation-delay: calc(var(--reveal-index) * var(--motion-stagger));
 }
 
 .course-card__header {
@@ -431,6 +503,10 @@ select.form-control {
   border: 1px solid var(--color-grey-border);
 }
 
+.course-slot.is-updating {
+  animation: contentSoftSwap var(--motion-duration-fast) var(--motion-ease) both;
+}
+
 .slot-datetime {
   font-size: var(--font-size-body-sm);
   color: var(--color-grey-contrast);
@@ -468,6 +544,42 @@ select.form-control {
   animation: none;
 }
 
+@keyframes resultsReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--motion-y), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--directional-x), var(--motion-y), 0)
+      scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes contentSoftSwap {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 3px, 0);
+    filter: blur(0.6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
 /* Mobile optimizations */
 @media (max-width: 640px) {
   .background {
@@ -485,6 +597,10 @@ select.form-control {
 
   .week-navigation {
     padding: 10px 12px;
+  }
+
+  .week-indicator-row {
+    margin-top: -10px;
   }
 
   .course-card {
@@ -522,5 +638,26 @@ select.form-control {
 
   select.form-control {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .results.is-revealing,
+  .course-card.is-revealing,
+  .course-slot.is-updating {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  .week-nav-btn,
+  .week-current-btn,
+  .form-control,
+  .week-picker,
+  .course-card {
+    transition-duration: 1ms !important;
+  }
+
+  .week-nav-btn:hover:not(:disabled) {
+    transform: none;
   }
 }
