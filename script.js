@@ -290,7 +290,19 @@ function getTargetMonday(now) {
     return manualWeekMonday;
   }
 
-  return getMonday(now);
+  return getWantedMonday(now);
+}
+
+function getWantedMonday(now) {
+  const currentWeekMonday = getMonday(now);
+  const fridayCutoff = addDays(currentWeekMonday, 4);
+  fridayCutoff.setHours(18, 0, 0, 0);
+
+  if (now.getTime() >= fridayCutoff.getTime()) {
+    return addWeeks(currentWeekMonday, 1);
+  }
+
+  return currentWeekMonday;
 }
 
 function getWeekKey(date) {
@@ -415,13 +427,8 @@ function loadPreferences() {
     if (preferences.groupe) {
       elements.groupe.value = preferences.groupe;
     }
-    manualSelectionActive = Boolean(preferences.manualSelectionActive);
-    if (preferences.manualWeek) {
-      manualWeekMonday = getMonday(new Date(preferences.manualWeek));
-      if (manualSelectionActive && manualWeekMonday) {
-        elements.weekPicker.value = formatDateForInput(manualWeekMonday);
-      }
-    }
+    manualSelectionActive = false;
+    manualWeekMonday = null;
   } catch (e) {
     console.error("Cannot load preferences", e);
   }
@@ -455,13 +462,13 @@ function updateCurrentWeekButton() {
   if (!elements.currentWeekBtn) return;
 
   const now = new Date();
-  const currentMonday = getTargetMonday(now);
+  const wantedMonday = getWantedMonday(now);
   const displayedMonday =
     manualSelectionActive && manualWeekMonday
       ? manualWeekMonday
-      : currentMonday;
+      : wantedMonday;
 
-  const isCurrentWeek = isSameDay(currentMonday, displayedMonday);
+  const isCurrentWeek = isSameDay(wantedMonday, displayedMonday);
   elements.currentWeekBtn.style.display = isCurrentWeek ? "none" : "block";
 }
 
