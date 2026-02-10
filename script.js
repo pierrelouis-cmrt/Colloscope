@@ -571,9 +571,32 @@ function updateCurrentWeekButton() {
       : wantedMonday;
 
   const isCurrentWeek = isSameDay(wantedMonday, displayedMonday);
-  elements.currentWeekBtn.textContent = isCurrentWeek
+  const label = isCurrentWeek
     ? "Semaine actuelle"
     : "Revenir à la semaine actuelle";
+  const resetIcon = `
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="week-current-btn__icon lucide lucide-undo-2"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h11a4 4 0 1 1 0 8h-1" />
+    </svg>
+  `;
+
+  elements.currentWeekBtn.innerHTML = isCurrentWeek
+    ? `<span class="week-current-btn__label">${label}</span>`
+    : `<span class="week-current-btn__label">${resetIcon}${label}</span>`;
   elements.currentWeekBtn.disabled = isCurrentWeek;
   elements.currentWeekBtn.setAttribute("aria-disabled", String(isCurrentWeek));
   elements.currentWeekBtn.classList.toggle("is-current", isCurrentWeek);
