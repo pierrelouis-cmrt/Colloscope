@@ -36,6 +36,7 @@ const VACATION_CONFIG = [
 
 const BASE_WEEK_KEY = "semaine_de_base";
 const DATA_URL = "./colloscope.json";
+const COLLES_FINISHED_FROM = "2026-06-01";
 
 const MONTHS = [
   "janvier",
@@ -424,6 +425,12 @@ function holidayInfoFor(monday) {
   return null;
 }
 
+function collesFinishedFor(monday) {
+  return (
+    startOfDay(monday).getTime() >= parseDate(COLLES_FINISHED_FROM).getTime()
+  );
+}
+
 // Calculate the number of working weeks between two dates (skipping vacation weeks)
 function calculateWorkingWeeksBetween(startMonday, endMonday) {
   let count = 0;
@@ -657,6 +664,7 @@ function render() {
 
   const holidayInfo = holidayInfoFor(targetMonday);
   const holiday = Boolean(holidayInfo);
+  const collesFinished = collesFinishedFor(targetMonday);
 
   if (endDate.getMonth() === targetMonday.getMonth()) {
     elements.weekText.textContent = `${date} – ${endDateNum} ${month}`;
@@ -664,14 +672,22 @@ function render() {
     elements.weekText.textContent = `${date} ${month} – ${endDateNum} ${endMonth}`;
   }
 
-  elements.weekStatus.textContent = holiday
-    ? `${holidayInfo.label}`
-    : `Semaine de cours`;
-  elements.weekStatus.className = holiday ? "week-badge holiday" : "week-badge";
+  let weekStatusText = "Semaine de cours";
+  let weekStatusClass = "week-badge";
+  if (collesFinished) {
+    weekStatusText = "Colles terminées";
+    weekStatusClass = "week-badge finished";
+  } else if (holiday) {
+    weekStatusText = `${holidayInfo.label}`;
+    weekStatusClass = "week-badge holiday";
+  }
+
+  elements.weekStatus.textContent = weekStatusText;
+  elements.weekStatus.className = weekStatusClass;
 
   let mathSlot = null;
   let physSlot = null;
-  if (!holiday) {
+  if (!holiday && !collesFinished) {
     mathSlot = findSlotForGroup(classe, "maths", groupNum, targetMonday);
     physSlot = findSlotForGroup(classe, "physique", groupNum, targetMonday);
   }

@@ -462,7 +462,8 @@ select.form-control {
   white-space: nowrap;
 }
 
-.week-badge.holiday {
+.week-badge.holiday,
+.week-badge.finished {
   background: rgba(210, 44, 44, 0.1);
   color: var(--color-accent);
 }
